@@ -33,7 +33,7 @@ C with only standard library.
 
 [K1234 열차번호][도착:시간][종착역] 반복
 [시간]
-[종착역][도착:시간][K5678 열차번호] 반복
+3p[종착역][도착:시간][K5678 열차번호] 반복
 ```
 
 * roads.txt
@@ -47,35 +47,6 @@ C with only standard library.
 형식으로 이루어져 있음
 
 ## 자료형
-### 역 그래프 (Station Graph)
-
-역 간 연결 관계만 표현 (시간 없음)
-각 역은 “이웃 역 목록”을 가진다.
-```
-StationNode
-- station name
-- adjacent stations (연결된 역들)
-```
-roads.txt를 기반으로 생성
-“어디로 이동 가능한지”만 표현
-방향 노선(종착역 기준 순서)을 포함
-
-
-### 노선 (Route)
-
-하나의 종착역 기준으로 정렬된 역 리스트
-여기서 종착역이라는 건 실제 역 이 아니라 일종의 운행 계통
-(동인천급) 처럼.
-
-```
-Route
-- terminal (종착역)
-- ordered stations (운행 순서)
-```
-
-열차가 실제로 이동하는 순서 정의
-환승 없이 “직선 이동 경로” 생성 가능
-roads.txt의 핵심 구조
 
 ### 시간표 (Station Schedule)
 
@@ -143,12 +114,6 @@ roads.txt를 읽어 Station Graph 생성.
 각 종착역 기준으로 Route를 만들고, 역 순서를 정렬.
 
 출발역에서 도착역까지 reachable set을 계산해 불필요한 역 제거.
-
-### 열차 경로 복원
-
-같은 열차번호를 여러 역에서 찾아 Train Path를 구성.
-
-열차별로 전체 운행 경로와 도착 시각을 정리.
 
 ### 탐색 초기화
 
