@@ -55,25 +55,35 @@ int load_routes(const char *filename) {
     FILE *fp = fopen(filename, "r");
     if (!fp) return 0;
 
-    char line[2048];
+    char line[4096];
     while (fgets(line, sizeof(line), fp)) {
         char *semicolon = strchr(line, ';');
         if (!semicolon) continue;
 
-        routes = realloc(routes, sizeof(Route) * (route_count + 1));
-        Route *r = &routes[route_count];
-        
-        *semicolon = '\0';
-        strncpy(r->route_name, line, MAX_NAME);
-        r->station_count = 0;
-
+        // 1. Parse stations first into a temporary buffer
+        char stations[MAX_STATIONS_PER_ROUTE][MAX_NAME];
+        int station_count = 0;
         char *stations_part = semicolon + 1;
-        char *token = strtok(stations_part, " \t\n\r");
-        while (token && r->station_count < MAX_STATIONS_PER_ROUTE) {
-            strncpy(r->stations[r->station_count++], get_canonical_name(token), MAX_NAME);
-            token = strtok(NULL, " \t\n\r");
+        char *s_token = strtok(stations_part, " \t\n\r");
+        while (s_token && station_count < MAX_STATIONS_PER_ROUTE) {
+            strncpy(stations[station_count++], get_canonical_name(s_token), MAX_NAME);
+            s_token = strtok(NULL, " \t\n\r");
         }
-        route_count++;
+
+        // 2. Parse route names (separated by : or =)
+        *semicolon = '\0';
+        char *r_token = strtok(line, ":= \t\n\r");
+        while (r_token) {
+            routes = realloc(routes, sizeof(Route) * (route_count + 1));
+            Route *r = &routes[route_count];
+            strncpy(r->route_name, r_token, MAX_NAME);
+            r->station_count = station_count;
+            for (int i = 0; i < station_count; i++) {
+                strncpy(r->stations[i], stations[i], MAX_NAME);
+            }
+            route_count++;
+            r_token = strtok(NULL, ":= \t\n\r");
+        }
     }
     fclose(fp);
     return route_count;
@@ -178,10 +188,16 @@ Time find_arrival_time(const char *station, const char *train_no) {
     return -1;
 }
 
-Route* find_route(const char *name) {
+Route* find_route(const char *name, const char *current_station) {
+    const char *canon_st = get_canonical_name(current_station);
     for (int i = 0; i < route_count; i++) {
         if (strcmp(routes[i].route_name, name) == 0) {
-            return &routes[i];
+            // Check if current_station is in this route
+            for (int j = 0; j < routes[i].station_count; j++) {
+                if (strcmp(routes[i].stations[j], canon_st) == 0) {
+                    return &routes[i];
+                }
+            }
         }
     }
     return NULL;

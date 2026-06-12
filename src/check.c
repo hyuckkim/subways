@@ -50,25 +50,12 @@ int main() {
             // Mark as checked
             strncpy(checked_terminals[checked_count++], dep->terminal, MAX_NAME);
 
-            Route *r = find_route(dep->terminal);
+            Route *r = find_route(dep->terminal, station_name);
             
             if (!r) {
-                printf("오류 #1: 노선 '%s' 가 없습니다. (%s.txt)\n", dep->terminal, station_name);
+                printf("오류: 노선 '%s' 가 없거나 %s를 지나지 않습니다. (%s.txt)\n", dep->terminal, station_name, station_name);
                 error_count++;
                 continue;
-            }
-
-            int found = 0;
-            for (int j = 0; j < r->station_count; j++) {
-                if (strcmp(r->stations[j], canonical_station) == 0) {
-                    found = 1;
-                    break;
-                }
-            }
-
-            if (!found) {
-                printf("오류 #2: 노선 '%s'에 %s가 없습니다. (%s.txt)\n", dep->terminal, canonical_station, station_name);
-                error_count++;
             }
         }
         free(sched);

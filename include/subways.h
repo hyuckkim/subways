@@ -35,6 +35,13 @@ typedef struct {
     int departure_count;
 } StationSchedule;
 
+// Global data (to be populated by parsers)
+extern Alias *aliases;
+extern int alias_count;
+
+extern Route *routes;
+extern int route_count;
+
 // For caching
 extern StationSchedule **schedule_cache;
 extern int cache_count;
@@ -45,7 +52,7 @@ const char* get_canonical_name(const char *name);
 int load_aliases(const char *filename);
 int load_routes(const char *filename);
 StationSchedule* load_station_schedule(const char *station_name);
-Route* find_route(const char *name);
+Route* find_route(const char *name, const char *current_station);
 Time find_arrival_time(const char *station, const char *train_no);
 
 void search_route(const char *start_node, const char *end_node, Time start_time);

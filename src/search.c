@@ -79,7 +79,7 @@ void search_route(const char *start_node, const char *end_node, Time start_time)
             int is_transfer = (strcmp(curr.train_no, dep->train_no) != 0);
             int new_transfers = curr.transfers + (is_transfer ? 1 : 0);
 
-            Route *r = find_route(dep->terminal);
+            Route *r = find_route(dep->terminal, curr.station);
             if (!r) continue;
 
             // Find current station in route to know subsequent stations
